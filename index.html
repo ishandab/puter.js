@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>AI Coding Buddy 🤖</title>
+<title>Claude Coding Buddy 🤖</title>
 <script src="https://js.puter.com/v2/"></script>
 <style>
   body { margin:0; padding:0; font-family:Arial,sans-serif; background:#0d0d0d; color:#fff; display:flex; flex-direction:column; height:100vh;}
@@ -21,7 +21,7 @@
 </style>
 </head>
 <body>
-<header>AI Coding Buddy 🤖</header>
+<header>Claude Coding Buddy 🤖</header>
 <div id="chat"></div>
 <div id="input-area">
   <input type="text" id="prompt" placeholder="Type a message..." />
@@ -75,18 +75,16 @@ async function sendMessage(){
   const typing = addMessage("Typing...", "ai typing");
 
   try{
-    // Construct a context including your uploaded files
+    // Include files and history in context
     let context = `User files:\n`;
     for(const [name, content] of Object.entries(filesMemory)){
       context += `File: ${name}\n${content}\n`;
     }
     context += `\nConversation:\n${text}`;
 
-    // Puter.js call, force Claude if supported
-    const resp = await puter.ai.chat([
-      {role:"system", content:"You are an expert coding assistant."},
-      {role:"user", content: context}
-    ]);
+    // Call Claude via Puter.js
+    const resp = await puter.ai.chat(context, { model: 'claude-3-5-sonnet' });
+
     typing.remove();
     addMessage(resp.message.content, "ai");
     chatHistory.push({role:"ai", text:resp.message.content});
