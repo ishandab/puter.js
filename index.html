@@ -1,99 +1,252 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Claude Coding Buddy 🤖</title>
-<script src="https://js.puter.com/v2/"></script>
-<style>
-  body { margin:0; padding:0; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background:#f5f3ef; color:#000; display:flex; flex-direction:column; height:100vh;}
-  header { padding:15px; background:#fff; text-align:left; font-size:24px; font-weight:bold; border-bottom:1px solid #e5e5e5; display:flex; justify-content:space-between; align-items:center;}
-  #chat { flex:1; padding:40px 20px; overflow-y:auto; display:flex; flex-direction:column; gap:20px; align-items:center;}
-  .msg { max-width:60%; padding:16px 20px; border-radius:20px; line-height:1.5; font-size:16px; white-space:pre-wrap; animation:fadeIn 0.3s; background:#fff; box-shadow:0 1px 3px rgba(0,0,0,0.1); position:relative;}
-  .user { align-self:flex-end; border-bottom-right-radius:4px;}
-  .ai { align-self:flex-start; border-bottom-left-radius:4px; font-family: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;}
-  .typing { font-style:normal; opacity:0.6; font-size:14px; display:inline-flex; align-items:center; gap:2px;}
-  .typing span { animation: dot 1.5s infinite ease-in-out;}
-  .typing span:nth-child(2) { animation-delay:0.5s;}
-  .typing span:nth-child(3) { animation-delay:1s;}
-  #input-area { display:flex; padding:10px; background:#fff; border-top:1px solid #e5e5e5; position:sticky; bottom:0;}
-  #prompt { flex:1; padding:12px; border:1px solid #e5e5e5; outline:none; border-radius:20px; font-size:16px; background:#fff; color:#000;}
-  button { margin-left:10px; padding:12px 18px; border:none; border-radius:20px; background:#d65a31; color:#fff; font-weight:bold; cursor:pointer; transition:0.2s;}
-  button:hover { background:#e56a41;}
-  #clear-btn { background:#666; }
-  #clear-btn:hover { background:#888; }
-  @keyframes fadeIn { from {opacity:0; transform:translateY(10px);} to {opacity:1; transform:translateY(0);} }
-  @keyframes dot { 0% { opacity:0.3; } 50% { opacity:1; } 100% { opacity:0.3; } }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Claude Coding Buddy 🤖</title>
+  <script src="https://js.puter.com/v2/"></script>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: #000;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+    header {
+      padding: 16px 24px;
+      background: #16181c;
+      border-bottom: 1px solid #333;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    header span {
+      font-size: 24px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+    }
+    #chat {
+      flex: 1;
+      padding: 32px 24px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      align-items: center;
+    }
+    .msg {
+      max-width: 80%;
+      padding: 16px 20px;
+      border-radius: 20px;
+      line-height: 1.6;
+      font-size: 16px;
+      white-space: pre-wrap;
+      animation: fadeIn 0.3s ease-out;
+      box-shadow: 0 2px 8px rgba(255,255,255,0.1);
+      position: relative;
+    }
+    .user {
+      align-self: flex-end;
+      background: #1d9bf0;
+      color: #000;
+      border-bottom-right-radius: 4px;
+    }
+    .ai {
+      align-self: flex-start;
+      background: #333;
+      color: #fff;
+      border-bottom-left-radius: 4px;
+      font-family: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+    }
+    .typing {
+      font-style: normal;
+      opacity: 0.6;
+      font-size: 14px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .typing span {
+      animation: dot 1.5s infinite ease-in-out;
+    }
+    .typing span:nth-child(2) { animation-delay: 0.5s; }
+    .typing span:nth-child(3) { animation-delay: 1s; }
+    #input-area {
+      display: flex;
+      padding: 16px;
+      background: #16181c;
+      border-top: 1px solid #333;
+      position: sticky;
+      bottom: 0;
+      align-items: center;
+    }
+    #prompt {
+      flex: 1;
+      padding: 12px 16px;
+      border: 1px solid #444;
+      outline: none;
+      border-radius: 20px;
+      font-size: 16px;
+      background: #222;
+      color: #fff;
+      transition: border-color 0.2s;
+    }
+    #prompt:focus {
+      border-color: #1d9bf0;
+    }
+    button {
+      margin-left: 12px;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 20px;
+      background: #1d9bf0;
+      color: #fff;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+    button:hover {
+      background: #0c84d6;
+    }
+    #clear-btn {
+      background: #444;
+    }
+    #clear-btn:hover {
+      background: #555;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes dot {
+      0% { opacity: 0.3; }
+      50% { opacity: 1; }
+      100% { opacity: 0.3; }
+    }
+    /* Smooth scrolling for chat */
+    #chat::-webkit-scrollbar {
+      width: 8px;
+    }
+    #chat::-webkit-scrollbar-track {
+      background: #16181c;
+    }
+    #chat::-webkit-scrollbar-thumb {
+      background: #444;
+      border-radius: 4px;
+    }
+    #chat::-webkit-scrollbar-thumb:hover {
+      background: #555;
+    }
+  </style>
 </head>
 <body>
-<header>
-  <span>Claude Coding Buddy 🤖</span>
-  <button id="clear-btn">Clear Chat</button>
-</header>
-<div id="chat"></div>
-<div id="input-area">
-  <input type="text" id="prompt" placeholder="Reply to Claude..." />
-  <button id="send">Send</button>
-</div>
+  <header>
+    <span>Claude Coding Buddy 🤖</span>
+    <button id="clear-btn">Clear Chat</button>
+  </header>
+  <div id="chat"></div>
+  <div id="input-area">
+    <input type="text" id="prompt" placeholder="Type a message..." autocomplete="off" />
+    <button id="send">Send</button>
+  </div>
 
-<script>
-const chatBox = document.getElementById("chat");
-const input = document.getElementById("prompt");
-const sendBtn = document.getElementById("send");
-const clearBtn = document.getElementById("clear-btn");
+  <script>
+    const chatBox = document.getElementById("chat");
+    const input = document.getElementById("prompt");
+    const sendBtn = document.getElementById("send");
+    const clearBtn = document.getElementById("clear-btn");
 
-// Load chat history from localStorage
-let chatHistory = JSON.parse(localStorage.getItem("chatHistory") || "[]");
+    // Load chat history from localStorage
+    let chatHistory = JSON.parse(localStorage.getItem("chatHistory") || "[]");
 
-// Display previous chat
-chatHistory.forEach(msg => addMessage(msg.text, msg.role));
+    // Display previous chat messages
+    chatHistory.forEach(msg => addMessage(msg.text, msg.role));
 
-function addMessage(text, cls) {
-  const msg = document.createElement("div");
-  msg.className = "msg " + cls;
-  if (cls.includes("typing")) {
-    msg.innerHTML = text;
-  } else {
-    msg.textContent = text;
-  }
-  chatBox.appendChild(msg);
-  chatBox.scrollTop = chatBox.scrollHeight;
-  return msg;
-}
+    function addMessage(text, cls) {
+      const msg = document.createElement("div");
+      msg.className = `msg ${cls}`;
+      if (cls.includes("typing")) {
+        msg.innerHTML = text;
+      } else {
+        msg.textContent = text;
+      }
+      chatBox.appendChild(msg);
+      chatBox.scrollTo({ top: chatBox.scrollHeight, behavior: "smooth" });
+      return msg;
+    }
 
-async function sendMessage() {
-  const text = input.value.trim();
-  if (!text) return;
-  input.value = "";
-  addMessage(text, "user");
-  chatHistory.push({role: "user", text});
-  localStorage.setItem("chatHistory", JSON.stringify(chatHistory));
+    async function sendMessage() {
+      const text = input.value.trim();
+      if (!text) return;
+      input.value = "";
+      addMessage(text, "user");
+      chatHistory.push({ role: "user", text });
+      localStorage.setItem("chatHistory", JSON.stringify(chatHistory));
 
-  const typing = addMessage('Typing<span>.</span><span>.</span><span>.</span>', "ai typing");
+      // Check and handle sign-in
+      if (!puter.auth.isSignedIn()) {
+        try {
+          await puter.auth.signIn();
+          addMessage("Signed in successfully!", "ai");
+        } catch (err) {
+          addMessage("⚠️ Error: " + (err.message || "Sign-in failed"), "ai");
+          return;
+        }
+      }
 
-  try {
-    // Call Claude via Puter.js
-    const resp = await puter.ai.chat(text, { model: 'claude-3-5-sonnet' });
+      const typing = addMessage('Typing<span>.</span><span>.</span><span>.</span>', "ai typing");
 
-    typing.remove();
-    addMessage(resp.message.content, "ai");
-    chatHistory.push({role: "ai", text: resp.message.content});
-    localStorage.setItem("chatHistory", JSON.stringify(chatHistory));
-  } catch (err) {
-    typing.remove();
-    addMessage("⚠️ Error: " + err.message, "ai");
-  }
-}
+      try {
+        // Build prompt with history
+        let prompt = "You are Claude, a helpful coding assistant created by Anthropic.\n\n";
+        prompt += chatHistory.map(msg => `${msg.role.toUpperCase()}: ${msg.text}`).join('\n\n');
+        prompt += "\n\nASSISTANT:";
 
-function clearChat() {
-  chatBox.innerHTML = "";
-  chatHistory = [];
-  localStorage.removeItem("chatHistory");
-}
+        // Streaming response
+        const options = { model: 'claude-3-5-sonnet', stream: true };
+        const resp = await puter.ai.chat(prompt, options);
 
-sendBtn.onclick = sendMessage;
-clearBtn.onclick = clearChat;
-input.addEventListener("keypress", e => { if (e.key === "Enter") sendMessage(); });
-</script>
+        typing.remove();
+        const messageDiv = addMessage("", "ai");
+        let fullText = "";
+
+        for await (const part of resp) {
+          const delta = part.text || "";
+          fullText += delta;
+          messageDiv.textContent += delta;
+          chatBox.scrollTo({ top: chatBox.scrollHeight, behavior: "smooth" });
+        }
+
+        chatHistory.push({ role: "ai", text: fullText });
+        localStorage.setItem("chatHistory", JSON.stringify(chatHistory));
+      } catch (err) {
+        typing.remove();
+        addMessage("⚠️ Error: " + (err.message || "Something went wrong"), "ai");
+      }
+    }
+
+    function clearChat() {
+      chatBox.innerHTML = "";
+      chatHistory = [];
+      localStorage.removeItem("chatHistory");
+    }
+
+    // Event listeners
+    sendBtn.addEventListener("click", sendMessage);
+    clearBtn.addEventListener("click", clearChat);
+    input.addEventListener("keypress", e => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
+    });
+  </script>
 </body>
 </html>
