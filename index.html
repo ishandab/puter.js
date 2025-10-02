@@ -3,67 +3,109 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Grok-Style AI Coding Assistant</title>
+<title>AI Coding Assistant</title>
 <script src="https://js.puter.com/v2/"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-  *{box-sizing:border-box;margin:0;padding:0;}
-  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;background:#0f172a;color:#d1d5db;display:flex;flex-direction:column;height:100vh;overflow:hidden;transition:background 0.4s,color 0.4s;}
-  body.light{background:#f1f5f9;color:#1e293b;}
-  header{padding:12px 24px;background:#1e293b;border-bottom:1px solid #334155;display:flex;justify-content:space-between;align-items:center;transition:background 0.3s;}
-  body.light header{background:#ffffff;border-bottom:1px solid #e2e8f0;}
-  header span{font-size:20px;font-weight:500;color:#60a5fa;}
-  body.light header span{color:#2563eb;}
-  #theme-toggle{background:#4b5563;border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:0.2s;}
-  #theme-toggle:hover{background:#6b7280;transform:scale(1.1);}
-  body.light #theme-toggle{background:#d1d5db;}
-  body.light #theme-toggle:hover{background:#9ca3af;}
-  #theme-toggle svg{fill:#facc15;width:18px;height:18px;}
-  body.light #theme-toggle svg{fill:#ffffff;}
-  #chat{flex:1;padding:16px 24px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;}
-  .msg{max-width:80%;padding:12px 16px;border-radius:12px;line-height:1.4;font-size:14px;white-space:pre-wrap;animation:fadeIn 0.2s ease-out;}
-  body.light .msg{background:#ffffff;border:1px solid #e2e8f0;}
-  .user{align-self:flex-end;background:#60a5fa;color:#1e293b;border-bottom-right-radius:4px;}
-  body.light .user{background:#2563eb;color:#ffffff;}
-  .ai{align-self:flex-start;background:#1e293b;color:#d1d5db;border-bottom-left-radius:4px;}
-  body.light .ai{background:#ffffff;color:#1e293b;}
-  .typing{font-style:normal;opacity:0.6;font-size:12px;display:inline-flex;align-items:center;gap:3px;}
-  .typing span{animation:dot 1.2s infinite ease-in-out;}
-  .typing span:nth-child(2){animation-delay:0.4s;}
-  .typing span:nth-child(3){animation-delay:0.8s;}
-  #input-area{display:flex;padding:12px 24px;background:#1e293b;border-top:1px solid #334155;position:sticky;bottom:0;align-items:center;gap:8px;transition:background 0.3s;}
-  body.light #input-area{background:#ffffff;border-top:1px solid #e2e8f0;}
-  #prompt{flex:1;padding:10px 14px;border:1px solid #4b5563;outline:none;border-radius:8px;font-size:14px;background:#1e293b;color:#d1d5db;transition:border-color 0.2s;}
-  body.light #prompt{background:#f1f5f9;border:1px solid #d1d5db;color:#1e293b;}
-  #prompt:focus{border-color:#60a5fa;}
-  #model-select{padding:8px 12px;border-radius:8px;background:#1e293b;color:#d1d5db;border:1px solid #4b5563;font-size:13px;cursor:pointer;transition:0.2s;}
-  body.light #model-select{background:#f1f5f9;border:1px solid #d1d5db;color:#1e293b;}
-  #model-select:focus{border-color:#60a5fa;outline:none;}
-  button{padding:8px 16px;border:none;border-radius:8px;background:#60a5fa;color:#ffffff;font-weight:500;font-size:13px;cursor:pointer;transition:0.2s;}
-  button:hover{background:#2563eb;transform:translateY(-1px);}
-  button:active{transform:translateY(0);}
-  #clear-btn{background:#4b5563;}
-  body.light #clear-btn{background:#9ca3af;}
-  #clear-btn:hover{background:#6b7280;}
-  body.light #clear-btn:hover{background:#6b7280;}
-  #image-btn{background:#f87171;padding:8px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;border-radius:8px;transition:0.2s;}
-  #image-btn:hover{background:#dc2626;transform:scale(1.1);}
-  #chat::-webkit-scrollbar{width:4px;}
-  #chat::-webkit-scrollbar-track{background:#1e293b;}
-  body.light #chat::-webkit-scrollbar-track{background:#f1f5f9;}
-  #chat::-webkit-scrollbar-thumb{background:#4b5563;border-radius:2px;}
-  body.light #chat::-webkit-scrollbar-thumb{background:#9ca3af;}
-  @keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
-  @keyframes dot{0%{opacity:0.5;}50%{opacity:1;}100%{opacity:0.5;}}
+  * { box-sizing: border-box; margin:0; padding:0; font-family:'Inter',sans-serif; }
+  body { background:#111827; color:#d1d5db; display:flex; flex-direction:column; height:100vh; overflow:hidden; transition:0.3s; }
+  body.light { background:#f1f5f9; color:#1e293b; }
+
+  header {
+    padding:16px 24px; display:flex; justify-content:space-between; align-items:center;
+    background:#1e293b; border-bottom:1px solid #334155; transition:0.3s;
+  }
+  body.light header { background:#fff; border-bottom:1px solid #e2e8f0; }
+  header span { font-size:22px; font-weight:600; color:#60a5fa; }
+  body.light header span { color:#2563eb; }
+
+  #theme-toggle {
+    background:#4b5563; border-radius:50%; width:36px; height:36px; display:flex; align-items:center; justify-content:center;
+    cursor:pointer; transition:all 0.3s;
+  }
+  #theme-toggle:hover { transform: rotate(20deg); background:#6b7280; }
+  body.light #theme-toggle { background:#d1d5db; }
+  body.light #theme-toggle:hover { background:#9ca3af; }
+  #theme-toggle svg { fill:#facc15; width:18px; height:18px; transition:0.3s; }
+  body.light #theme-toggle svg { fill:#fff; }
+
+  #chat { flex:1; padding:20px; overflow-y:auto; display:flex; flex-direction:column; gap:12px; align-items:center; }
+
+  .msg {
+    max-width:75%; padding:16px 20px; border-radius:24px; font-size:15px; line-height:1.5; white-space:pre-wrap; animation:fadeIn 0.3s;
+    backdrop-filter: blur(8px); box-shadow:0 6px 12px rgba(0,0,0,0.4);
+  }
+
+  .user {
+    align-self:flex-end; background: linear-gradient(135deg,#3b82f6,#60a5fa); color:#111827; border-bottom-right-radius:8px;
+  }
+  .ai {
+    align-self:flex-start; background: rgba(30,41,59,0.8); color:#d1d5db; border-bottom-left-radius:8px;
+  }
+  body.light .ai { background: rgba(255,255,255,0.9); color:#1e293b; box-shadow:0 4px 8px rgba(0,0,0,0.1); }
+  body.light .user { background: linear-gradient(135deg,#2563eb,#3b82f6); color:#fff; }
+
+  .typing span { display:inline-block; animation:dot 1.2s infinite ease-in-out; font-weight:600; color:#60a5fa; }
+  .typing span:nth-child(2){ animation-delay:0.4s; }
+  .typing span:nth-child(3){ animation-delay:0.8s; }
+
+  #input-area {
+    display:flex; padding:16px 24px; background:#1e293b; border-top:1px solid #334155; position:sticky; bottom:0; align-items:center; transition:0.3s;
+  }
+  body.light #input-area { background:#fff; border-top:1px solid #e2e8f0; }
+
+  #prompt {
+    flex:1; padding:14px 18px; border-radius:16px; border:1px solid #4b5563; background:#1e293b; color:#d1d5db;
+    font-size:15px; outline:none; transition: all 0.2s ease, box-shadow 0.2s ease;
+  }
+  #prompt:focus { border-color:#60a5fa; box-shadow:0 0 10px #60a5fa; }
+  body.light #prompt { background:#f1f5f9; border:1px solid #d1d5db; color:#1e293b; }
+
+  #model-select {
+    margin-left:12px; padding:10px 14px; border-radius:16px; border:1px solid #4b5563; background:#1e293b; color:#d1d5db; cursor:pointer;
+    transition:all 0.2s;
+  }
+  #model-select:hover { background:#374151; }
+  body.light #model-select { background:#f1f5f9; border:1px solid #d1d5db; color:#1e293b; }
+  #model-select:focus { outline:none; border-color:#60a5fa; }
+
+  button {
+    margin-left:12px; padding:12px 20px; border-radius:16px; border:none; cursor:pointer; font-weight:500; font-size:14px;
+    transition:all 0.2s;
+  }
+  #send { background:#60a5fa; color:#fff; }
+  #send:hover { background:#2563eb; transform:scale(1.05); }
+  #clear-btn { background:#4b5563; color:#fff; }
+  #clear-btn:hover { background:#6b7280; transform:scale(1.05); }
+  body.light #clear-btn { background:#9ca3af; }
+  body.light #clear-btn:hover { background:#6b7280; }
+
+  #image-btn {
+    background:#f87171; padding:8px; width:38px; height:38px; display:flex; align-items:center; justify-content:center;
+    border-radius:50%; transition:all 0.2s; margin-left:6px;
+  }
+  #image-btn:hover { background:#dc2626; transform:scale(1.1); }
+
+  .image img { max-width:100%; border-radius:20px; box-shadow:0 6px 12px rgba(0,0,0,0.4); transition:transform 0.3s ease; }
+  .image img:hover { transform:scale(1.03); }
+
+  #chat::-webkit-scrollbar { width:6px; }
+  #chat::-webkit-scrollbar-track { background:#1e293b; }
+  body.light #chat::-webkit-scrollbar-track { background:#f1f5f9; }
+  #chat::-webkit-scrollbar-thumb { background:#4b5563; border-radius:3px; }
+  body.light #chat::-webkit-scrollbar-thumb { background:#9ca3af; }
+  #chat::-webkit-scrollbar-thumb:hover { background:#6b7280; }
+
+  @keyframes fadeIn { from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);} }
+  @keyframes dot { 0%,100%{opacity:0.4;}50%{opacity:1;} }
 </style>
 </head>
 <body>
 <header>
-  <span>Grok-Style AI Assistant</span>
-  <div style="display:flex;gap:8px;">
+  <span>AI Coding Assistant</span>
+  <div>
     <button id="theme-toggle">
-      <svg id="theme-icon" viewBox="0 0 24 24">
-        <path d="M12 16a4 4 0 0 0 0-8 4 4 0 0 0 0 8zm0 2a6 6 0 1 1 0-12 6 6 0 0 1 0 12zm0-14a1 1 0 1 1 0-2 1 1 0 0 1 0 2zm0 16a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm-8-7a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm16 0a1 1 0 1 1 2 0 1 1 0 0 1-2 0zm-3.515-11.515a1 1 0 1 1-2-2 1 1 0 0 1 2 2zm0 18a1 1 0 1 1 2-2 1 1 0 0 1-2 0zm-11.515 0a1 1 0 1 1-2 2 1 1 0 0 1 2-2zm0-18a1 1 0 1 1 2-2 1 1 0 0 1-2 0z"/>
-      </svg>
+      <svg id="theme-icon" viewBox="0 0 24 24"><path d="M12 16a4 4 0 0 0 0-8 4 4 0 0 0 0 8z"/></svg>
     </button>
     <button id="clear-btn">Clear</button>
   </div>
@@ -93,93 +135,20 @@
 </div>
 
 <script>
-const chatBox=document.getElementById("chat");
-const input=document.getElementById("prompt");
-const sendBtn=document.getElementById("send");
-const clearBtn=document.getElementById("clear-btn");
-const themeToggle=document.getElementById("theme-toggle");
-const themeIcon=document.getElementById("theme-icon");
-const modelSelect=document.getElementById("model-select");
-const imageBtn=document.getElementById("image-btn");
-
-let chatHistory=JSON.parse(localStorage.getItem("chatHistory")||"[]");
-if(localStorage.getItem("theme")==="light"){document.body.classList.add("light");}
-
-chatHistory.forEach(msg=>addMessage(msg.text,msg.role));
-
-function addMessage(text,cls){
-  const msg=document.createElement("div");
-  msg.className=`msg ${cls}`;
-  if(cls==="ai"||cls==="user"){msg.textContent=text;}
-  else if(cls==="typing"){msg.innerHTML=text;}
-  chatBox.appendChild(msg);
-  chatBox.scrollTo({top:chatBox.scrollHeight,behavior:"smooth"});
-  return msg;
-}
-
-async function sendMessage(){
-  const text=input.value.trim();
-  if(!text)return;
-  input.value="";
-  addMessage(text,"user");
-  chatHistory.push({role:"user",text});
-  localStorage.setItem("chatHistory",JSON.stringify(chatHistory));
-
-  if(!puter.auth.isSignedIn()){
-    try{await puter.auth.signOut().catch(()=>{});await puter.auth.signIn();addMessage("Signed in successfully!","ai");}catch(err){addMessage("⚠️ Sign in failed. Try incognito.","ai");return;}
-  }
-
-  const typing=addMessage('Typing<span>.</span><span>.</span><span>.</span>',"ai typing");
-  const selectedModel=modelSelect.value;
-
-  try{
-    let prompt=`You are an AI coding assistant using ${selectedModel}.\n\n`;
-    prompt+=chatHistory.map(m=>`${m.role.toUpperCase()}: ${m.text}`).join('\n\n');
-    prompt+="\n\nASSISTANT:";
-
-    const options={model:selectedModel,stream:true,timeout:30000};
-    const resp=await puter.ai.chat(prompt,options);
-
-    typing.remove();
-    const messageDiv=addMessage("", "ai");
-    for await(const part of resp){
-      const delta=part.text||"";
-      messageDiv.textContent+=delta;
-      chatBox.scrollTo({top:chatBox.scrollHeight,behavior:"smooth"});
-    }
-
-    chatHistory.push({role:"ai",text:messageDiv.textContent});
-    localStorage.setItem("chatHistory",JSON.stringify(chatHistory));
-  }catch(err){typing.remove();addMessage(`⚠️ Error: ${err.message||"Failed to get response."}`,"ai");}
-}
-
-async function generateImage(){
-  const text=input.value.trim();
-  if(!text){addMessage("⚠️ Enter prompt to generate image.","ai");return;}
-  if(!puter.auth.isSignedIn()){try{await puter.auth.signOut().catch(()=>{});await puter.auth.signIn();addMessage("Signed in successfully!","ai");}catch(err){addMessage("⚠️ Image generation sign-in failed.","ai");return;}}
-  const typing=addMessage('Generating image<span>.</span><span>.</span><span>.</span>',"ai typing");
-  try{
-    const image=await puter.ai.txt2img(text,true);
-    typing.remove();
-    const imgDiv=document.createElement("div");
-    imgDiv.className="image";
-    imgDiv.appendChild(image);
-    chatBox.appendChild(imgDiv);
-    chatBox.scrollTo({top:chatBox.scrollHeight,behavior:"smooth"});
-    chatHistory.push({role:"image",text:`[Image: ${text}]`});
-    localStorage.setItem("chatHistory",JSON.stringify(chatHistory));
-  }catch(err){typing.remove();addMessage(`⚠️ Error: ${err.message||"Failed to generate image."}`,"ai");}
-}
-
-function clearChat(){chatBox.innerHTML="";chatHistory=[];localStorage.removeItem("chatHistory");puter.auth.signOut().catch(()=>{});}
-function toggleTheme(){document.body.classList.toggle("light");localStorage.setItem("theme",document.body.classList.contains("light")?"light":"dark");}
-
-sendBtn.addEventListener("click",sendMessage);
-clearBtn.addEventListener("click",clearChat);
-imageBtn.addEventListener("click",generateImage);
-themeToggle.addEventListener("click",toggleTheme);
-input.addEventListener("keypress",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();sendMessage();}});
-window.addEventListener("load",()=>{puter.auth.signOut().catch(()=>{});});
+  const chatBox=document.getElementById("chat"),input=document.getElementById("prompt"),sendBtn=document.getElementById("send"),clearBtn=document.getElementById("clear-btn"),themeToggle=document.getElementById("theme-toggle"),themeIcon=document.getElementById("theme-icon"),modelSelect=document.getElementById("model-select"),imageBtn=document.getElementById("image-btn");
+  let chatHistory=JSON.parse(localStorage.getItem("chatHistory")||"[]");
+  if(localStorage.getItem("theme")==="light"){document.body.classList.add("light");themeIcon.innerHTML='<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/>'}
+  chatHistory.forEach(msg=>addMessage(msg.text,msg.role));
+  function addMessage(text,cls){const msg=document.createElement("div");msg.className=`msg ${cls}`;if(cls.includes("typing")){msg.innerHTML=text}else if(cls==="image"){msg.appendChild(text)}else{msg.textContent=text}chatBox.appendChild(msg);chatBox.scrollTo({top:chatBox.scrollHeight,behavior:"smooth"});return msg}
+  async function sendMessage(){const text=input.value.trim();if(!text)return;input.value="";addMessage(text,"user");chatHistory.push({role:"user",text});localStorage.setItem("chatHistory",JSON.stringify(chatHistory));const typing=addMessage('Typing<span>.</span><span>.</span><span>.</span>',"ai typing");const selectedModel=modelSelect.value;try{let prompt=`You are an AI coding assistant using ${selectedModel}.\n\n`;prompt+=chatHistory.map(msg=>`${msg.role.toUpperCase()}: ${msg.text}`).join('\n\n');prompt+="\n\nASSISTANT:";const options={model:selectedModel,stream:!0,timeout:3e4};const resp=await puter.ai.chat(prompt,options);typing.remove();const messageDiv=addMessage("","ai");let fullText="";puter.print(`<h1>${modelSelect.options[modelSelect.selectedIndex].text}:</h1>`);for await(const part of resp){const delta=part.text||"";fullText+=delta;messageDiv.textContent+=delta;puter.print(delta.replaceAll('\n','<br>'));chatBox.scrollTo({top:chatBox.scrollHeight,behavior:"smooth"})}chatHistory.push({role:"ai",text:fullText});localStorage.setItem("chatHistory",JSON.stringify(chatHistory))}catch(err){typing.remove();addMessage(`⚠️ Error: ${err.message||"Failed to get response. Try another model or check your connection."}`,"ai")}}
+  async function generateImage(){const text=input.value.trim();if(!text){addMessage("⚠️ Enter a prompt to generate an image.","ai");return}const typing=addMessage('Generating image<span>.</span><span>.</span><span>.</span>',"ai typing");try{const image=await puter.ai.txt2img(text,!0);typing.remove();addMessage(image,"image");chatHistory.push({role:"image",text:`[Image: ${text}]`});localStorage.setItem("chatHistory",JSON.stringify(chatHistory))}catch(err){typing.remove();addMessage(`⚠️ Error: ${err.message||"Failed to generate image."}`,"ai")}}
+  function clearChat(){chatBox.innerHTML="";chatHistory=[];localStorage.removeItem("chatHistory")}
+  function toggleTheme(){document.body.classList.toggle("light");const isLight=document.body.classList.contains("light");localStorage.setItem("theme",isLight?"light":"dark");themeIcon.innerHTML=isLight?'<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/>':'<path d="M12 16a4 4 0 0 0 0-8 4 4 0 0 0 0 8z"/>'}
+  sendBtn.addEventListener("click",sendMessage);
+  clearBtn.addEventListener("click",clearChat);
+  imageBtn.addEventListener("click",generateImage);
+  themeToggle.addEventListener("click",toggleTheme);
+  input.addEventListener("keypress",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();sendMessage()}});
 </script>
 </body>
 </html>
