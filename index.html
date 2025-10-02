@@ -2,192 +2,98 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Claude Chat</title>
+<title>Claude Coding Buddy 🤖</title>
 <script src="https://js.puter.com/v2/"></script>
 <style>
-  body {
-    margin: 0;
-    padding: 0;
-    font-family: "Inter", sans-serif;
-    background: #ffffff;
-    color: #111;
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-  }
-
-  header {
-    background: #f5f5f5;
-    padding: 15px;
-    font-size: 18px;
-    font-weight: bold;
-    border-bottom: 1px solid #ddd;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  header button {
-    background: #0051ff;
-    color: white;
-    border: none;
-    padding: 6px 12px;
-    border-radius: 6px;
-    cursor: pointer;
-  }
-
-  header button:hover {
-    background: #003ecc;
-  }
-
-  .chat-container {
-    flex: 1;
-    overflow-y: auto;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-  }
-
-  .message {
-    max-width: 70%;
-    padding: 12px 16px;
-    margin: 6px 0;
-    border-radius: 12px;
-    line-height: 1.5;
-    font-size: 15px;
-    white-space: pre-wrap;
-    word-wrap: break-word;
-  }
-
-  .user {
-    align-self: flex-end;
-    background: #0051ff;
-    color: white;
-    border-bottom-right-radius: 4px;
-  }
-
-  .ai {
-    align-self: flex-start;
-    background: #f5f5f5;
-    color: #111;
-    border-bottom-left-radius: 4px;
-  }
-
-  .input-area {
-    display: flex;
-    padding: 12px;
-    border-top: 1px solid #ddd;
-  }
-
-  .input-area input {
-    flex: 1;
-    padding: 12px;
-    font-size: 15px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    outline: none;
-  }
-
-  .input-area button {
-    margin-left: 8px;
-    padding: 0 20px;
-    border: none;
-    background: #0051ff;
-    color: white;
-    border-radius: 8px;
-    font-size: 15px;
-    cursor: pointer;
-  }
-
-  .input-area button:hover {
-    background: #003ecc;
-  }
+  body { margin:0; padding:0; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background:#f5f3ef; color:#000; display:flex; flex-direction:column; height:100vh;}
+  header { padding:15px; background:#fff; text-align:left; font-size:24px; font-weight:bold; border-bottom:1px solid #e5e5e5; display:flex; justify-content:space-between; align-items:center;}
+  #chat { flex:1; padding:40px 20px; overflow-y:auto; display:flex; flex-direction:column; gap:20px; align-items:center;}
+  .msg { max-width:60%; padding:16px 20px; border-radius:20px; line-height:1.5; font-size:16px; white-space:pre-wrap; animation:fadeIn 0.3s; background:#fff; box-shadow:0 1px 3px rgba(0,0,0,0.1); position:relative;}
+  .user { align-self:flex-end; border-bottom-right-radius:4px;}
+  .ai { align-self:flex-start; border-bottom-left-radius:4px; font-family: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;}
+  .typing { font-style:normal; opacity:0.6; font-size:14px; display:inline-flex; align-items:center; gap:2px;}
+  .typing span { animation: dot 1.5s infinite ease-in-out;}
+  .typing span:nth-child(2) { animation-delay:0.5s;}
+  .typing span:nth-child(3) { animation-delay:1s;}
+  #input-area { display:flex; padding:10px; background:#fff; border-top:1px solid #e5e5e5; position:sticky; bottom:0;}
+  #prompt { flex:1; padding:12px; border:1px solid #e5e5e5; outline:none; border-radius:20px; font-size:16px; background:#fff; color:#000;}
+  button { margin-left:10px; padding:12px 18px; border:none; border-radius:20px; background:#d65a31; color:#fff; font-weight:bold; cursor:pointer; transition:0.2s;}
+  button:hover { background:#e56a41;}
+  #clear-btn { background:#666; }
+  #clear-btn:hover { background:#888; }
+  @keyframes fadeIn { from {opacity:0; transform:translateY(10px);} to {opacity:1; transform:translateY(0);} }
+  @keyframes dot { 0% { opacity:0.3; } 50% { opacity:1; } 100% { opacity:0.3; } }
 </style>
 </head>
 <body>
-
 <header>
-  Claude Chat
-  <button onclick="clearHistory()">Clear Chat</button>
+  <span>Claude Coding Buddy 🤖</span>
+  <button id="clear-btn">Clear Chat</button>
 </header>
-
-<div class="chat-container" id="chat"></div>
-
-<div class="input-area">
-  <input id="input" type="text" placeholder="Message Claude..." />
-  <button onclick="sendMessage()">Send</button>
+<div id="chat"></div>
+<div id="input-area">
+  <input type="text" id="prompt" placeholder="Reply to Claude..." />
+  <button id="send">Send</button>
 </div>
 
 <script>
-const chatContainer = document.getElementById("chat");
-const input = document.getElementById("input");
+const chatBox = document.getElementById("chat");
+const input = document.getElementById("prompt");
+const sendBtn = document.getElementById("send");
+const clearBtn = document.getElementById("clear-btn");
 
-// Load history
-let history = JSON.parse(localStorage.getItem("chatHistory") || "[]");
-history.forEach(msg => addMessage(msg.text, msg.sender));
+// Load chat history from localStorage
+let chatHistory = JSON.parse(localStorage.getItem("chatHistory") || "[]");
 
-function addMessage(text, sender) {
-  const div = document.createElement("div");
-  div.className = `message ${sender}`;
-  div.textContent = text;
-  chatContainer.appendChild(div);
-  chatContainer.scrollTop = chatContainer.scrollHeight;
+// Display previous chat
+chatHistory.forEach(msg => addMessage(msg.text, msg.role));
+
+function addMessage(text, cls) {
+  const msg = document.createElement("div");
+  msg.className = "msg " + cls;
+  if (cls.includes("typing")) {
+    msg.innerHTML = text;
+  } else {
+    msg.textContent = text;
+  }
+  chatBox.appendChild(msg);
+  chatBox.scrollTop = chatBox.scrollHeight;
+  return msg;
 }
 
-// Send message
 async function sendMessage() {
   const text = input.value.trim();
   if (!text) return;
   input.value = "";
-
   addMessage(text, "user");
-  saveHistory(text, "user");
+  chatHistory.push({role: "user", text});
+  localStorage.setItem("chatHistory", JSON.stringify(chatHistory));
 
-  const typingDiv = document.createElement("div");
-  typingDiv.className = "message ai";
-  typingDiv.textContent = "Claude is typing...";
-  chatContainer.appendChild(typingDiv);
-  chatContainer.scrollTop = chatContainer.scrollHeight;
+  const typing = addMessage('Typing<span>.</span><span>.</span><span>.</span>', "ai typing");
 
   try {
-    const resp = await puter.ai.chat(text, { model: "claude-3-5-sonnet" });
+    // Call Claude via Puter.js
+    const resp = await puter.ai.chat(text, { model: 'claude-3-5-sonnet' });
 
-    // Remove typing
-    chatContainer.removeChild(typingDiv);
-
-    // Extract text from response properly
-    let aiText = "";
-    if (Array.isArray(resp.message?.content)) {
-      aiText = resp.message.content
-        .filter(c => c.type === "text")
-        .map(c => c.text)
-        .join("\n");
-    } else if (typeof resp.message?.content === "string") {
-      aiText = resp.message.content;
-    } else {
-      aiText = JSON.stringify(resp.message?.content, null, 2);
-    }
-
-    addMessage(aiText, "ai");
-    saveHistory(aiText, "ai");
+    typing.remove();
+    addMessage(resp.message.content, "ai");
+    chatHistory.push({role: "ai", text: resp.message.content});
+    localStorage.setItem("chatHistory", JSON.stringify(chatHistory));
   } catch (err) {
-    chatContainer.removeChild(typingDiv);
+    typing.remove();
     addMessage("⚠️ Error: " + err.message, "ai");
   }
 }
 
-function saveHistory(text, sender) {
-  history.push({ text, sender });
-  localStorage.setItem("chatHistory", JSON.stringify(history));
-}
-
-// Clear chat button
-function clearHistory() {
+function clearChat() {
+  chatBox.innerHTML = "";
+  chatHistory = [];
   localStorage.removeItem("chatHistory");
-  history = [];
-  chatContainer.innerHTML = "";
 }
-</script>
 
+sendBtn.onclick = sendMessage;
+clearBtn.onclick = clearChat;
+input.addEventListener("keypress", e => { if (e.key === "Enter") sendMessage(); });
+</script>
 </body>
 </html>
