@@ -1,141 +1,104 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>AI Assistant 🤖✨</title>
-  <script src="https://js.puter.com/v2/"></script>
-  <style>
-    body {
-      margin: 0;
-      padding: 0;
-      background: #0d0d0d;
-      color: #fff;
-      font-family: "Segoe UI", sans-serif;
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
-    }
-    header {
-      padding: 15px;
-      background: #1a1a1a;
-      text-align: center;
-      font-size: 20px;
-      font-weight: bold;
-      border-bottom: 1px solid #333;
-    }
-    #chat {
-      flex: 1;
-      padding: 20px;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-    .msg {
-      max-width: 75%;
-      padding: 12px 16px;
-      border-radius: 12px;
-      line-height: 1.4;
-      font-size: 15px;
-      animation: fadeIn 0.3s ease-in-out;
-      white-space: pre-wrap;
-    }
-    .user {
-      align-self: flex-end;
-      background: #4cafef;
-      color: #000;
-      border-bottom-right-radius: 0;
-    }
-    .ai {
-      align-self: flex-start;
-      background: #222;
-      border-bottom-left-radius: 0;
-    }
-    #input-area {
-      display: flex;
-      padding: 15px;
-      background: #1a1a1a;
-      border-top: 1px solid #333;
-    }
-    #prompt {
-      flex: 1;
-      padding: 12px;
-      border: none;
-      outline: none;
-      border-radius: 8px;
-      font-size: 15px;
-      background: #333;
-      color: #fff;
-    }
-    button {
-      margin-left: 10px;
-      padding: 12px 18px;
-      border: none;
-      border-radius: 8px;
-      background: #4cafef;
-      color: #000;
-      font-weight: bold;
-      cursor: pointer;
-      transition: 0.2s;
-    }
-    button:hover {
-      background: #5cd4ff;
-    }
-    .typing {
-      font-style: italic;
-      opacity: 0.6;
-      font-size: 14px;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(5px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-  </style>
+<meta charset="UTF-8">
+<title>AI Coding Buddy 🤖</title>
+<script src="https://js.puter.com/v2/"></script>
+<style>
+  body { margin:0; padding:0; font-family:Arial,sans-serif; background:#0d0d0d; color:#fff; display:flex; flex-direction:column; height:100vh;}
+  header { padding:15px; background:#1a1a1a; text-align:center; font-size:20px; font-weight:bold; border-bottom:1px solid #333;}
+  #chat { flex:1; padding:20px; overflow-y:auto; display:flex; flex-direction:column; gap:10px;}
+  .msg { max-width:75%; padding:12px 16px; border-radius:12px; line-height:1.4; font-size:15px; white-space:pre-wrap; animation:fadeIn 0.3s;}
+  .user { align-self:flex-end; background:#4cafef; color:#000; border-bottom-right-radius:0;}
+  .ai { align-self:flex-start; background:#222; border-bottom-left-radius:0;}
+  .typing { font-style:italic; opacity:0.6; font-size:14px;}
+  #input-area { display:flex; padding:10px; background:#1a1a1a; border-top:1px solid #333;}
+  #prompt { flex:1; padding:12px; border:none; outline:none; border-radius:8px; font-size:15px; background:#333; color:#fff;}
+  button { margin-left:10px; padding:12px 18px; border:none; border-radius:8px; background:#4cafef; color:#000; font-weight:bold; cursor:pointer; transition:0.2s;}
+  button:hover { background:#5cd4ff;}
+  input[type="file"] { margin-left:10px; }
+  @keyframes fadeIn { from {opacity:0; transform:translateY(5px);} to {opacity:1; transform:translateY(0);} }
+</style>
 </head>
 <body>
-  <header>⚡ My AI Assistant</header>
-  <div id="chat"></div>
-  <div id="input-area">
-    <input id="prompt" placeholder="Type a message..." />
-    <button id="send">Send</button>
-  </div>
+<header>AI Coding Buddy 🤖</header>
+<div id="chat"></div>
+<div id="input-area">
+  <input type="text" id="prompt" placeholder="Type a message..." />
+  <button id="send">Send</button>
+  <input type="file" id="fileInput" />
+</div>
 
-  <script>
-    const chatBox = document.getElementById("chat");
-    const input = document.getElementById("prompt");
-    const sendBtn = document.getElementById("send");
+<script>
+const chatBox = document.getElementById("chat");
+const input = document.getElementById("prompt");
+const sendBtn = document.getElementById("send");
+const fileInput = document.getElementById("fileInput");
 
-    function addMessage(text, cls) {
-      const msg = document.createElement("div");
-      msg.className = "msg " + cls;
-      msg.textContent = text;
-      chatBox.appendChild(msg);
-      chatBox.scrollTop = chatBox.scrollHeight;
-      return msg;
+// Load chat history from localStorage
+let chatHistory = JSON.parse(localStorage.getItem("chatHistory") || "[]");
+let filesMemory = JSON.parse(localStorage.getItem("filesMemory") || "{}");
+
+// Display previous chat
+chatHistory.forEach(msg => addMessage(msg.text, msg.role));
+
+function addMessage(text, cls){
+  const msg = document.createElement("div");
+  msg.className = "msg " + cls;
+  msg.textContent = text;
+  chatBox.appendChild(msg);
+  chatBox.scrollTop = chatBox.scrollHeight;
+  return msg;
+}
+
+// Handle file uploads
+fileInput.addEventListener("change", e=>{
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ()=> {
+    filesMemory[file.name] = reader.result;
+    localStorage.setItem("filesMemory", JSON.stringify(filesMemory));
+    addMessage(`📁 File uploaded: ${file.name}`, "ai");
+  };
+  reader.readAsText(file);
+});
+
+async function sendMessage(){
+  const text = input.value.trim();
+  if(!text) return;
+  input.value = "";
+  addMessage(text, "user");
+  chatHistory.push({role:"user", text});
+  localStorage.setItem("chatHistory", JSON.stringify(chatHistory));
+
+  const typing = addMessage("Typing...", "ai typing");
+
+  try{
+    // Construct a context including your uploaded files
+    let context = `User files:\n`;
+    for(const [name, content] of Object.entries(filesMemory)){
+      context += `File: ${name}\n${content}\n`;
     }
+    context += `\nConversation:\n${text}`;
 
-    async function sendMessage() {
-      const text = input.value.trim();
-      if (!text) return;
-      input.value = "";
-      addMessage(text, "user");
+    // Puter.js call, force Claude if supported
+    const resp = await puter.ai.chat([
+      {role:"system", content:"You are an expert coding assistant."},
+      {role:"user", content: context}
+    ]);
+    typing.remove();
+    addMessage(resp.message.content, "ai");
+    chatHistory.push({role:"ai", text:resp.message.content});
+    localStorage.setItem("chatHistory", JSON.stringify(chatHistory));
+  } catch(err){
+    typing.remove();
+    addMessage("⚠️ Error: " + err.message, "ai");
+  }
+}
 
-      const typing = addMessage("Typing...", "ai typing");
-
-      try {
-        const resp = await puter.ai.chat([{ role: "user", content: text }]);
-        typing.remove();
-        addMessage(resp.message.content, "ai");
-      } catch (err) {
-        typing.remove();
-        addMessage("⚠️ Error: " + err.message, "ai");
-      }
-    }
-
-    sendBtn.onclick = sendMessage;
-    input.addEventListener("keypress", e => {
-      if (e.key === "Enter") sendMessage();
-    });
-  </script>
+sendBtn.onclick = sendMessage;
+input.addEventListener("keypress", e => { if(e.key==="Enter") sendMessage(); });
+</script>
 </body>
 </html>
